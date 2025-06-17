@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Presale MEMCOINA</title>
+  <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: #f7f7fb;
+      font-family: 'Comic Neue', 'Comic Sans MS', cursive, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .mem-container {
+      background: #fff;
+      border-radius: 28px;
+      box-shadow: 0 4px 24px 0 #b6b6e6a0;
+      padding: 36px 32px 28px 32px;
+      max-width: 370px;
+      width: 100%;
+      text-align: center;
+      border: 2.5px solid #e0e0f7;
+    }
+    .mem-header {
+      font-size: 1.35rem;
+      font-weight: bold;
+      color: #6c4fc7;
+      margin-bottom: 10px;
+      letter-spacing: 0.5px;
+    }
+    .mem-balance {
+      font-size: 1.1rem;
+      color: #222;
+      margin-bottom: 10px;
+    }
+    .mem-divider {
+      border: none;
+      border-top: 2px dashed #e0d7f7;
+      margin: 18px 0 18px 0;
+    }
+    .mem-price {
+      font-size: 1rem;
+      color: #7a6ee6;
+      margin-bottom: 18px;
+    }
+    .sol-btn {
+      background: linear-gradient(90deg, #b6b6e6 0%, #aee6f7 100%);
+      border: 2px solid #b6b6e6;
+      border-radius: 14px;
+      color: #4b3ca7;
+      font-weight: bold;
+      font-size: 1.1rem;
+      padding: 8px 32px 8px 32px;
+      margin-bottom: 18px;
+      margin-top: 0;
+      cursor: pointer;
+      outline: none;
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      max-width: 220px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .sol-btn svg {
+      width: 24px;
+      height: 24px;
+      vertical-align: middle;
+    }
+    .mem-form-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .mem-form-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .mem-label {
+      font-size: 0.98rem;
+      color: #6c4fc7;
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+    .mem-input-wrap {
+      position: relative;
+      width: 100%;
+    }
+    .mem-input {
+      width: 100%;
+      border-radius: 12px;
+      border: 2px solid #e0e0f7;
+      background: #f7f7fb;
+      font-size: 1.1rem;
+      padding: 10px 38px 10px 12px;
+      color: #4b3ca7;
+      font-family: inherit;
+      outline: none;
+      box-sizing: border-box;
+      font-weight: bold;
+    }
+    .mem-input:read-only {
+      background: #f0f0fa;
+      color: #b6b6e6;
+    }
+    .mem-input-icon {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1.3em;
+      pointer-events: none;
+    }
+    .mem-connect-btn {
+      background: linear-gradient(90deg, #b6e0f7 0%, #b6b6e6 100%);
+      border: none;
+      border-radius: 18px;
+      color: #4b3ca7;
+      font-size: 1.25rem;
+      font-weight: bold;
+      padding: 16px 0;
+      width: 100%;
+      margin: 18px 0 8px 0;
+      cursor: pointer;
+      box-shadow: 0 2px 8px #b6b6e633;
+      transition: background 0.2s;
+    }
+    .mem-connect-btn:active {
+      background: #aee6f7;
+    }
+    .mem-link {
+      color: #6c4fc7;
+      text-decoration: underline;
+      font-size: 1.01rem;
+      margin-top: 6px;
+      display: inline-block;
+      transition: color 0.2s;
+    }
+    .mem-link:hover {
+      color: #4b3ca7;
+    }
+    .mem-status {
+      margin-top: 10px;
+      color: #c44f7a;
+      font-size: 1rem;
+      min-height: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <div class="mem-container">
+    <div class="mem-header">Kup $MEM, aby dołączyć do MEM ARMY!</div>
+    <div class="mem-balance" id="wallet-balance" style="display:inline-block;">TWOJE $MEM = 0</div>
+    <button id="refresh-mem" onclick="checkPresaleBalance()" title="Odśwież saldo" style="display:inline-block;vertical-align:middle;margin-left:8px;width:32px;height:32px;padding:0;border-radius:8px;border:2px solid #b6b6e6;background:#f7f7fb;cursor:pointer;transition:background 0.2s;"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.5 10a5.5 5.5 0 0 1 9.33-4.01l-1.08 1.08A.5.5 0 0 0 13 8.5h3.5a.5.5 0 0 0 .5-.5V4.5a.5.5 0 0 0-.85-.35l-1.2 1.2A7 7 0 1 0 17 10h-1.5A5.5 5.5 0 1 1 4.5 10Z" fill="#6c4fc7"/></svg></button>
+    <div id="wallet-address" style="font-size:0.98rem;color:#7a6ee6;margin-bottom:10px;">Nie połączono</div>
+    <hr class="mem-divider" />
+    <div class="mem-price">1 $MEM = $0.0003</div>
+    <button class="sol-btn" type="button" disabled>
+      <span>
+        <svg viewBox="0 0 398 311" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24">
+          <linearGradient id="sol1" x1="0" y1="0" x2="398" y2="311" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#00FFA3"/>
+            <stop offset="1" stop-color="#DC1FFF"/>
+          </linearGradient>
+          <path d="M324 234H10c-7 0-10 9-5 14l42 48c2 2 5 3 8 3h324c7 0 10-9 5-14l-42-48c-2-2-5-3-8-3z" fill="url(#sol1)"/>
+          <linearGradient id="sol2" x1="0" y1="0" x2="398" y2="311" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#00FFA3"/>
+            <stop offset="1" stop-color="#DC1FFF"/>
+          </linearGradient>
+          <path d="M74 133h314c7 0 10-9 5-14l-42-48c-2-2-5-3-8-3H19c-7 0-10 9-5 14l42 48c2 2 5 3 8 3z" fill="url(#sol2)"/>
+          <linearGradient id="sol3" x1="0" y1="0" x2="398" y2="311" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#00FFA3"/>
+            <stop offset="1" stop-color="#DC1FFF"/>
+          </linearGradient>
+          <path d="M324 183H10c-7 0-10-9-5-14l42-48c2-2 5-3 8-3h324c7 0 10 9 5 14l-42 48c-2 2-5 3-8 3z" fill="url(#sol3)"/>
+        </svg>
+      </span>
+      SOL
+    </button>
+    <div class="mem-form-row">
+      <div class="mem-form-col">
+        <div class="mem-label">Płać za pomocą SOL</div>
+        <div class="mem-input-wrap">
+          <input type="number" id="amount" min="0.001" step="0.001" class="mem-input" placeholder="0" oninput="updatePredictedTokens()" />
+          <span class="mem-input-icon">
+            <svg viewBox="0 0 398 311" fill="none" xmlns="http://www.w3.org/2000/svg" width="22" height="22">
+              <linearGradient id="sol4" x1="0" y1="0" x2="398" y2="311" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#00FFA3"/>
+                <stop offset="1" stop-color="#DC1FFF"/>
+              </linearGradient>
+              <path d="M324 234H10c-7 0-10 9-5 14l42 48c2 2 5 3 8 3h324c7 0 10-9 5-14l-42-48c-2-2-5-3-8-3z" fill="url(#sol4)"/>
+              <linearGradient id="sol5" x1="0" y1="0" x2="398" y2="311" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#00FFA3"/>
+                <stop offset="1" stop-color="#DC1FFF"/>
+              </linearGradient>
+              <path d="M74 133h314c7 0 10-9 5-14l-42-48c-2-2-5-3-8-3H19c-7 0-10 9-5 14l42 48c2 2 5 3 8 3z" fill="url(#sol5)"/>
+              <linearGradient id="sol6" x1="0" y1="0" x2="398" y2="311" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#00FFA3"/>
+                <stop offset="1" stop-color="#DC1FFF"/>
+              </linearGradient>
+              <path d="M324 183H10c-7 0-10-9-5-14l42-48c2-2 5-3 8-3h324c7 0 10 9 5 14l-42 48c-2 2-5 3-8 3z" fill="url(#sol6)"/>
+            </svg>
+          </span>
+        </div>
+      </div>
+      <div class="mem-form-col">
+        <div class="mem-label">Odbierz $MEM</div>
+        <div class="mem-input-wrap">
+          <input type="text" id="predicted-tokens" class="mem-input" value="0" readonly />
+          <span class="mem-input-icon">🪙</span>
+        </div>
+      </div>
+    </div>
+    <button class="mem-connect-btn" id="wallet-button" onclick="connectWallet()">Połącz Portfel</button>
+    <button class="mem-connect-btn" id="send-sol-button" style="display:none;margin-top:8px;background:linear-gradient(90deg,#d1c4e9 0%,#b6e0f7 100%);color:#6c4fc7;" onclick="sendSOL()">Wyślij SOL</button>
+    <a class="mem-link" href="https://phantom.app" target="_blank" rel="noopener">Nie masz portfela?</a>
+    <div class="mem-status" id="status"></div>
+  </div>
+
+  <script>
+    let walletPublicKey = null;
+    const RECIPIENT_ADDRESS = "7uQfKHskdcWdy7Dmu6WxhYX8mPv6GBgYB9wfuFdWgoYJ";
+    let tokenPriceUSD = 0.0003;
+    let solToUsd = 150; // fallback
+
+    function fetchAndUpdateTokenPrice() {
+      fetch("https://fopecoin.onrender.com/config")
+        .then(res => res.json())
+        .then(data => {
+          if (data.TOKEN_PRICE_USD) {
+            tokenPriceUSD = parseFloat(data.TOKEN_PRICE_USD);
+            const priceElem = document.querySelector('.mem-price');
+            if (priceElem) priceElem.textContent = `1 $MEM = $${tokenPriceUSD}`;
+            updatePredictedTokens();
+          }
+        });
+    }
+    fetchAndUpdateTokenPrice();
+    setInterval(fetchAndUpdateTokenPrice, 10000);
+
+    // 🔄 Pobierz kurs SOL/USD z CoinGecko
+    fetch("https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd")
+      .then(res => res.json())
+      .then(data => {
+        if (data.solana && data.solana.usd) {
+          solToUsd = parseFloat(data.solana.usd);
+          console.log("✅ Kurs SOL/USD z CoinGecko:", solToUsd);
+          document.getElementById("sol-price").textContent = `Cena 1 SOL: ${solToUsd} USD`;
+          updatePredictedTokens();
+        }
+      })
+      .catch(err => {
+        console.warn("❌ Nie udało się pobrać kursu SOL/USD:", err.message);
+      });
+
+    function updatePredictedTokens() {
+      const amount = parseFloat(document.getElementById("amount").value);
+      const prediction = document.getElementById("predicted-tokens");
+
+      if (!amount || amount <= 0) {
+        prediction.value = 0;
+        return;
+      }
+
+      const usd = amount * solToUsd;
+      const mem = usd / tokenPriceUSD;
+
+      prediction.value = mem > 0 ? mem.toFixed(0) : 0;
+    }
+
+    function shortenAddress(address) {
+      if (!address) return '';
+      return address.slice(0, 6) + '...' + address.slice(-5);
+    }
+
+    function setWalletButtonText(connected) {
+      const btn = document.getElementById("wallet-button");
+      const sendSolBtn = document.getElementById("send-sol-button");
+      btn.textContent = connected ? "Zmień Portfel" : "Połącz Portfel";
+      sendSolBtn.style.display = connected ? "block" : "none";
+    }
+
+    async function connectWallet() {
+      const status = document.getElementById("status");
+
+      try {
+        if (!window.solana || !window.solana.isPhantom) {
+          status.textContent = "Zainstaluj portfel Phantom.";
+          return;
+        }
+
+        // Najpierw rozłącz jeśli jesteśmy połączeni
+        if (window.solana.isConnected) {
+          await window.solana.disconnect();
+          walletPublicKey = null;
+          document.getElementById("wallet-address").textContent = "Nie polaczono";
+          setWalletButtonText(false);
+          // Poczekaj chwilę przed ponownym połączeniem
+          await new Promise(resolve => setTimeout(resolve, 100));
+        }
+
+        // Teraz połącz z nowym portfelem
+        const resp = await window.solana.connect();
+        walletPublicKey = new solanaWeb3.PublicKey(resp.publicKey.toString());
+        document.getElementById("wallet-address").textContent = shortenAddress(walletPublicKey.toBase58());
+        status.textContent = "";
+        setWalletButtonText(true);
+        checkPresaleBalance();
+      } catch (err) {
+        status.textContent = "Nie udalo sie polaczyc z portfelem.";
+        walletPublicKey = null;
+        document.getElementById("wallet-address").textContent = "Nie polaczono";
+        setWalletButtonText(false);
+      }
+    }
+
+    // Reaguj na ręczną zmianę konta w Phantom
+    if (window.solana) {
+      window.solana.on("accountChanged", pk => {
+        if (pk) {
+          walletPublicKey = pk;
+          document.getElementById("wallet-address").textContent = shortenAddress(pk.toBase58());
+          setWalletButtonText(true);
+          checkPresaleBalance();
+        } else {
+          // użytkownik całkiem się rozłączył
+          walletPublicKey = null;
+          document.getElementById("wallet-address").textContent = "Nie polaczono";
+          setWalletButtonText(false);
+        }
+      });
+    }
+
+    async function fetchNonce() {
+      const res = await fetch(`https://fopecoin.onrender.com/nonce/${walletPublicKey.toBase58()}`);
+      const data = await res.json();
+      return data.nonce;
+    }
+
+    async function sendSOL() {
+      const status = document.getElementById("status");
+      const amount = parseFloat(document.getElementById("amount").value);
+
+      if (!walletPublicKey) {
+        status.textContent = "Najpierw polacz portfel.";
+        return;
+      }
+
+      if (!amount || amount <= 0) {
+        status.textContent = "Podaj poprawna kwote.";
+        return;
+      }
+
+      try {
+        // Najpierw pobierz nonce i podpisz wiadomość
+        const nonce = await fetchNonce();
+        const messageText = `${nonce}`;
+        const message = new TextEncoder().encode(messageText);
+        const signedMessage = await window.solana.signMessage(message, "utf8");
+        const signatureBase64 = btoa(String.fromCharCode(...signedMessage.signature));
+
+        // Teraz wyślij transakcję SOL
+        const connection = new solanaWeb3.Connection(solanaWeb3.clusterApiUrl('devnet'), 'confirmed');
+        const recipient = new solanaWeb3.PublicKey(RECIPIENT_ADDRESS);
+
+        const transaction = new solanaWeb3.Transaction().add(
+          solanaWeb3.SystemProgram.transfer({
+            fromPubkey: walletPublicKey,
+            toPubkey: recipient,
+            lamports: amount * solanaWeb3.LAMPORTS_PER_SOL,
+          })
+        );
+
+        transaction.feePayer = walletPublicKey;
+        const { blockhash } = await connection.getRecentBlockhash();
+        transaction.recentBlockhash = blockhash;
+
+        const signed = await window.solana.signTransaction(transaction);
+        const signature = await connection.sendRawTransaction(signed.serialize());
+        await connection.confirmTransaction(signature);
+
+        status.textContent = `Transakcja SOL wyslana! TX: ${signature}`;
+
+        // Zarejestruj transakcję w backendzie
+        const response = await fetch("https://fopecoin.onrender.com/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            signature: signature,
+            wallet: walletPublicKey.toBase58(),
+            signedMessage: signatureBase64,
+            message: messageText
+          })
+        });
+
+        const result = await response.json();
+        if (result.success) {
+          status.textContent += "\nZarejestrowano MEM w backendzie.";
+        } else {
+          status.textContent += `\nBlad rejestracji: ${result.error}`;
+        }
+
+      } catch (error) {
+        status.textContent = "Blad: " + error.message;
+      }
+    }
+
+    async function checkPresaleBalance() {
+      const balanceDisplay = document.getElementById("wallet-balance");
+
+      if (!walletPublicKey) {
+        balanceDisplay.textContent = "TWOJE $MEM = 0";
+        return;
+      }
+
+      try {
+        const nonce = await fetchNonce();
+        const messageText = `Sprawdz moje MEM | ${nonce}`;
+        const encodedMessage = new TextEncoder("utf-8").encode(messageText);
+        const signedMessage = await window.solana.signMessage(encodedMessage, "utf8");
+        const signatureBase64 = btoa(String.fromCharCode(...signedMessage.signature));
+
+        const response = await fetch("https://fopecoin.onrender.com/balance", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            wallet: walletPublicKey.toBase58(),
+            signature: signatureBase64,
+            message: messageText
+          })
+        });
+
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "Blad serwera");
+
+        const tokens = data.balance || 0;
+        balanceDisplay.textContent = `TWOJE $MEM = ${tokens.toFixed(0)}`;
+      } catch (err) {
+        balanceDisplay.textContent = "TWOJE $MEM = 0";
+      }
+    }
+
+    // Ustaw tekst przycisku na start
+    setWalletButtonText(false);
+  </script>
+</body>
+</html>
